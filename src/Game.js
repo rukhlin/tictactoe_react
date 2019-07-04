@@ -1,5 +1,6 @@
 import React from 'react';
 import Board from './Board.js';
+import Switcher from './Switcher.js'
 
 function calculateWinner(squares) {
   const lines = [
@@ -20,16 +21,23 @@ function calculateWinner(squares) {
   }
   return null;
 }
+
+function getCoords(i) {
+  return ('(' + (i % 3 + 1) + ', ' + Math.floor(i / 3 + 1) + ')')
+}
   
 class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       history: [{
-        squares: Array(9).fill(null)  
+        squares: Array(9).fill(null),
+        currentStep: null  
       }],
       xIsNext: true,
-      stepNumber: 0
+      stepNumber: 0,
+      hasStepChosen: false,
+      isSorterAsc: true
     }
   }
   
@@ -43,10 +51,18 @@ class Game extends React.Component {
     squares[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
       history: history.concat([{
-        squares: squares,
+        squares: squares,        
+        currentStep: i
       }]),
       xIsNext: !this.state.xIsNext,
-      stepNumber: history.length
+      stepNumber: history.length,
+      hasStepChosen: false
+    });
+  }
+
+  onSortingChange() {
+    this.setState({
+      isSorterAsc: !this.state.isSorterAsc
     });
   }
 
@@ -54,6 +70,7 @@ class Game extends React.Component {
     this.setState({
       stepNumber: step,
       xIsNext: (step % 2) === 0,
+      hasStepChosen: true
     });
   }
 
@@ -66,9 +83,21 @@ class Game extends React.Component {
       const desc = move ?
         'Go to step #' + move :
         'Reset';
+      let liClassName = '';
+      if (this.state.hasStepChosen) {
+        liClassName = 'active-step';
+      }
       return (
         <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          <button 
+            onClick={() => this.jumpTo(move)}
+            className={(move === this.state.stepNumber ? liClassName : '')}>
+              {desc}
+          </button>
+          <label>{
+            history[move]['currentStep'] !== null && (' Step in ' + getCoords(history[move]['currentStep']) + ' with ' + (move % 2 === 0 ? 'X' : 'O'))
+            }
+           </label>
         </li>
       );
     });
@@ -90,6 +119,10 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <Switcher 
+            isSorterAsc={this.state.isSorterAsc} 
+            onClick={() => this.onSortingChange()}  
+          />
           <ol>{moves}</ol>
         </div>
       </div>

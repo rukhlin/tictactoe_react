@@ -48,3 +48,16 @@ ol, ul {
 .game-info {
   margin-left: 20px;
 }
+
+.active-step {
+  background-color: lightcoral;
+}
+
+.switcher p {
+  display:  inline-block;
+}
+
+.switcher-btn {
+  margin-left: 10px;  
+  width: 50px;
+}
